@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .sensor {
+            margin-bottom: 15px;
+        }
+        h1 {
+            color: #333;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Raspberry Pi Sensor Data</h1>
+    <div id="data-container">
+        <!-- Real-time sensor data will be shown here -->
+    </div>
+    <script>
+        async function fetchSensorData() {
+            try {
+                // Fetch data from Flask server
+                const response = await fetch('http://192.168.1.191:5000/sensor-data');
+                const data = await response.json();
+
+                // Select the container for displaying data
+                const container = document.getElementById('data-container');
+                container.innerHTML = '';  // Clear existing content
+
+                // Check if there's an error in the sensor data
+                if (data.error) {
+                    container.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+                } else {
+                    // Display the sensor data if available
+                    container.innerHTML = `
+                        <div class="sensor"><strong>Vibration:</strong> ${data.vibration ? 'Detected' : 'None'}</div>
+                        <div class="sensor"><strong>Raindrop:</strong> ${data.raindrop ? 'Wet' : 'Dry'}</div>
+                    `;
+                }
+            } catch (error) {
+                // Handle any error that occurs while fetching data
+                document.getElementById('data-container').innerHTML = `<p class="error">Error fetching data: ${error}</p>`;
+            }
+        }
+
+        // Fetch data immediately on page load
+        fetchSensorData();
+
+        // Fetch data every 5 seconds to keep the page updated
+        setInterval(fetchSensorData, 5000);
+    </script>
+</body>
+</html>
